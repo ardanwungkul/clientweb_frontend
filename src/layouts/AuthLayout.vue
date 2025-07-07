@@ -5,12 +5,6 @@ const isDark = ref(localStorage.getItem('isDark') === 'true')
 watchEffect(() => {
     localStorage.setItem('isDark', isDark.value)
 })
-
-if (role == 'admin') {
-    console.log('admin')
-} else {
-    console.log('user')
-}
 </script>
 
 <template>

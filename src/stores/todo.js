@@ -10,11 +10,58 @@ export const useTodoStore = defineStore('todo', {
     }),
 
     actions: {
-        async getDataByUser() {
+        async getDataByUser(whereNot = null, orderBy = null) {
             const uiStore = useUIStore()
             uiStore.isLoading = true
+
             try {
-                const response = await api.get('/todo')
+                const params = new URLSearchParams()
+                if (Array.isArray(whereNot)) {
+                    whereNot.forEach((item, index) => {
+                        for (const key in item) {
+                            params.append(`whereNot[${index}][${key}]`, item[key])
+                        }
+                    })
+                }
+                if (Array.isArray(orderBy)) {
+                    orderBy.forEach((item, index) => {
+                        for (const key in item) {
+                            params.append(`orderBy[${index}][${key}]`, item[key])
+                        }
+                    })
+                }
+                params.append('type', 'by-user-auth')
+                const response = await api.get(`/todo?${params.toString()}`)
+                this.datas = response.data.data
+            } catch (error) {
+                console.log(error)
+            } finally {
+                uiStore.isLoading = false
+            }
+        },
+        async getDataByUserId(id, whereNot = null, orderBy = null) {
+            const uiStore = useUIStore()
+            uiStore.isLoading = true
+
+            try {
+                const params = new URLSearchParams()
+                if (Array.isArray(whereNot)) {
+                    whereNot.forEach((item, index) => {
+                        for (const key in item) {
+                            params.append(`whereNot[${index}][${key}]`, item[key])
+                        }
+                    })
+                }
+                if (Array.isArray(orderBy)) {
+                    orderBy.forEach((item, index) => {
+                        for (const key in item) {
+                            params.append(`orderBy[${index}][${key}]`, item[key])
+                        }
+                    })
+                }
+                params.append('type', 'by-user-id')
+                params.append('user_id', id)
+                const response = await api.get(`/todo?${params.toString()}`)
                 this.datas = response.data.data
             } catch (error) {
                 console.log(error)
@@ -57,6 +104,20 @@ export const useTodoStore = defineStore('todo', {
                 uiStore.isLoading = false
             }
         },
+        async editSubject(form, id) {
+            const uiStore = useUIStore()
+            const responseStore = useResponseStore()
+
+            uiStore.isLoading = true
+            try {
+                const response = await api.put(`/todo/${id}`, form)
+                responseStore.addSuccess(response.data.message)
+            } catch (error) {
+                console.log(error)
+            } finally {
+                uiStore.isLoading = false
+            }
+        },
         async editCatatan(form, id) {
             const uiStore = useUIStore()
             const responseStore = useResponseStore()
@@ -71,6 +132,19 @@ export const useTodoStore = defineStore('todo', {
                 uiStore.isLoading = false
             }
         },
+        async editOrder(orderList) {
+            const uiStore = useUIStore()
+            uiStore.isLoading = true
+            try {
+                await api.post('/todo/update-order', {
+                    order: orderList,
+                })
+            } catch (error) {
+                console.error(error)
+            } finally {
+                uiStore.isLoading = false
+            }
+        },
         async delete(id) {
             const uiStore = useUIStore()
             const responseStore = useResponseStore()
@@ -80,6 +154,24 @@ export const useTodoStore = defineStore('todo', {
                 const response = await api.delete(`/todo/${id}`)
                 this.datas = this.datas.filter((todo) => {
                     return todo.id !== id
+                })
+                responseStore.addSuccess(response.data.message)
+            } catch (error) {
+                console.log(error)
+            } finally {
+                uiStore.isLoading = false
+            }
+        },
+        async submitTodo(form) {
+            const uiStore = useUIStore()
+            const responseStore = useResponseStore()
+            uiStore.isLoading = true
+            try {
+                const response = await api.post(`/todo/submit`, form)
+                response.data.data.forEach((item) => {
+                    this.datas = this.datas.filter((todo) => {
+                        return todo.id !== item.id
+                    })
                 })
                 responseStore.addSuccess(response.data.message)
             } catch (error) {

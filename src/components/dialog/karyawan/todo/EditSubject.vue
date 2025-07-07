@@ -4,6 +4,7 @@ const dialog = ref(false)
 
 const props = defineProps({
     todo: Object,
+    method: Function,
 })
 </script>
 <template>
@@ -42,19 +43,12 @@ const props = defineProps({
                                 >
                                 <input
                                     type="text"
+                                    @input="method(todo.subject, todo.id)"
                                     v-model="todo.subject"
                                     placeholder="Masukkan Subject"
                                     required
                                     class="w-full !p-2.5 border dark:!border-typography-3 dark:!bg-dark-primary-2 rounded-lg dark:!text-white"
                                 />
-                            </div>
-                            <div class="flex justify-end">
-                                <button
-                                    type="submit"
-                                    class="!bg-green-200 px-5 py-1 text-sm !text-green-800 !font-semibold border !border-green-800 rounded-lg"
-                                >
-                                    Simpan
-                                </button>
                             </div>
                         </div>
                     </form>

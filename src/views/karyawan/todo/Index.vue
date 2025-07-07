@@ -6,9 +6,12 @@ import { debounce } from 'lodash'
 import { useTodoStore } from '@/stores/todo'
 import TambahTodo from '@/components/dialog/karyawan/todo/TambahTodo.vue'
 import ConfirmDelete from '@/components/dialog/ConfirmDelete.vue'
+import ConfirmSubmit from '@/components/dialog/karyawan/todo/ConfirmSubmit.vue'
 import EditSubject from '@/components/dialog/karyawan/todo/EditSubject.vue'
+import { useResponseStore } from '@/stores/response'
 
 const todoStore = useTodoStore()
+const responseStore = useResponseStore()
 
 const todos = ref({
     todo: [],
@@ -17,7 +20,10 @@ const todos = ref({
 })
 
 onMounted(async () => {
-    await todoStore.getDataByUser()
+    const whereNot = [{ status: 'deleted' }]
+    const orderBy = [{ order: 'asc' }]
+
+    await todoStore.getDataByUser(whereNot, orderBy)
     fetchData()
 })
 
@@ -29,9 +35,16 @@ const fetchData = async () => {
 const onDragEnd = async (event) => {
     const status = event.to.dataset.status
     const statusFrom = event.from.dataset.status
-    const todoId = event.item.dataset.id
+
+    const movedList = todos.value[status]
+    const orderedIds = movedList.map((item, index) => ({
+        id: item.id,
+        order: index + 1,
+    }))
+    await todoStore.editOrder(orderedIds)
 
     if (status !== statusFrom) {
+        const todoId = event.item.dataset.id
         const formData = new FormData()
         formData.append('status', status)
         formData.append('_method', 'PUT')
@@ -40,6 +53,13 @@ const onDragEnd = async (event) => {
     }
 }
 
+const editSubject = async (subject, id) => {
+    if (subject !== '') {
+        const formData = new FormData()
+        formData.append('subject', subject)
+        await todoStore.editSubject(formData, id)
+    }
+}
 const editCatatan = async (catatan, id) => {
     if (catatan !== '') {
         const formData = new FormData()
@@ -54,14 +74,18 @@ const deleteTask = async (id) => {
     await todoStore.delete(id)
 }
 const submitTodo = async () => {
-    const formData = new FormData()
-    todos.value.done.forEach((item) => {
-        if (!item.order_id) {
+    if (todos.value.done.length == 0) {
+        responseStore.addError('Mohon selesaikan lebih dari satu task sebelum melakukan submit.')
+    } else {
+        const formData = new FormData()
+        todos.value.done.forEach((item) => {
             formData.append('todo[]', item.id)
-        }
-    })
-    await todoStore.submitTodo(formData, setErrors, processing)
+        })
+        await todoStore.submitTodo(formData)
+    }
 }
+
+const debouncedEditSubject = debounce(editSubject, 500)
 const debouncedEditCatatan = debounce(editCatatan, 500)
 
 watch(
@@ -101,7 +125,11 @@ watch(
                         >
                             <template #item="{ element }">
                                 <div
-                                    :class="element?.catatan == '' ? '!shadow !shadow-red-500' : ''"
+                                    :class="
+                                        element?.catatan == '' || element?.subject == ''
+                                            ? '!shadow !shadow-red-500'
+                                            : ''
+                                    "
                                     class="list-group-item dark:!bg-dark-primary-1 !bg-light-primary-2 rounded-lg border overflow-hidden !cursor-move"
                                     :draggable="true"
                                     :data-id="element?.id"
@@ -156,7 +184,12 @@ watch(
                                                                 class="!min-w-40 !rounded-lg overflow-hidden"
                                                             >
                                                                 <li>
-                                                                    <EditSubject :todo="element">
+                                                                    <EditSubject
+                                                                        :todo="element"
+                                                                        :method="
+                                                                            debouncedEditSubject
+                                                                        "
+                                                                    >
                                                                         <template
                                                                             #activator="{ props }"
                                                                         >
@@ -219,14 +252,17 @@ watch(
                                 </div>
                             </template>
                         </draggable>
-                        <button
-                            type="button"
-                            @click="submitTodo"
-                            v-if="status == 'done'"
-                            class="!bg-secondary-3 rounded-lg !text-sm !text-white !py-1 !mt-3 text-center w-full hover:!opacity-90 transition-all duration-300"
-                        >
-                            Submit
-                        </button>
+                        <ConfirmSubmit :method="submitTodo" v-if="status == 'done'">
+                            <template #activator="{ props }">
+                                <button
+                                    v-bind="props"
+                                    type="button"
+                                    class="!bg-secondary-3 rounded-lg !text-sm !text-white !py-1 !mt-3 text-center w-full hover:!opacity-90 transition-all duration-300"
+                                >
+                                    Submit
+                                </button>
+                            </template>
+                        </ConfirmSubmit>
                     </fieldset>
                 </div>
             </div>
