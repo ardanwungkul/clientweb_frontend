@@ -55,6 +55,16 @@ const adminRoutes = [
             title: 'Todo List',
         },
     },
+    {
+        path: '/admin/user',
+        name: 'admin.user.index',
+        component: () => import('@/views/admin/user/Index.vue'),
+        meta: {
+            auth: true,
+            role: 'admin',
+            title: 'User',
+        },
+    },
 ]
 
 const karyawanRoutes = [

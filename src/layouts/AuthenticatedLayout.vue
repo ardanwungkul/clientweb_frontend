@@ -27,6 +27,11 @@ const sidebarItemsAdmin = ref([
         icon: 'fa-solid fa-globe',
     },
     {
+        to: 'admin.user.index',
+        title: 'User',
+        icon: 'fa-solid fa-user',
+    },
+    {
         to: 'admin.pelanggan.index',
         title: 'Pelanggan',
         icon: 'fa-solid fa-users',

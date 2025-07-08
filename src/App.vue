@@ -41,7 +41,7 @@ watch(
     <div>
         <v-progress-linear
             indeterminate
-            class="!bg-yellow-500 !fixed !top-0"
+            class="!bg-yellow-500 !fixed !top-0 z-[1000000]"
             height="2"
             v-if="ui.isLoading"
         ></v-progress-linear>
