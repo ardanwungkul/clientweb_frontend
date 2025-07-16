@@ -41,6 +41,11 @@ const sidebarItemsAdmin = ref([
         title: 'Todo List',
         icon: 'fa-solid fa-check',
     },
+    {
+    to: 'admin.nameserver.index', // Rute untuk halaman name server
+    title: 'name Server',
+    icon: 'fa-solid fa-server', // Icon server
+  },
 ])
 
 const sidebarItemKaryawan = ref([
