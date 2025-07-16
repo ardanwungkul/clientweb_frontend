@@ -27,7 +27,7 @@ const handleDelete = async () => {
             <slot name="activator" :props="activatorProps">
                 <button v-bind="activatorProps">
                     <div
-                        class="flex gap-2 items-center text-white bg-red-500 hover:bg-opacity-90 rounded-lg px-3 py-1"
+                        class="flex gap-2 items-center !text-sm text-white bg-red-500 hover:bg-opacity-90 rounded-lg px-3 py-1"
                     >
                         <i class="fa-solid fa-trash"></i>
                         <p>Delete</p>

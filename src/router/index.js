@@ -56,13 +56,13 @@ const adminRoutes = [
         },
     },
     {
-        path: '/admin/nameserver',
-        name: 'admin.nameserver.index',
-        component: () => import('@/views/admin/nameserver/Index.vue'), // <-- Sesuaikan folder dan nama file
+        path: '/admin/user',
+        name: 'admin.user.index',
+        component: () => import('@/views/admin/user/Index.vue'),
         meta: {
             auth: true,
             role: 'admin',
-            title: 'Name Server',
+            title: 'User',
         },
     },
 ]

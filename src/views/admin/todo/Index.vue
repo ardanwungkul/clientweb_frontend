@@ -1,6 +1,7 @@
 <script setup>
 import TodoTabs from '@/components/dialog/admin/todo/TodoTabs.vue'
 import TodoChart from '@/components/dialog/admin/todo/TodoChart.vue'
+import TambahTodo from '@/components/dialog/admin/todo/TambahTodo.vue'
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue'
 import { useUserStore } from '@/stores/user'
 import { computed, onMounted, ref } from 'vue'
@@ -28,20 +29,14 @@ const selectUser = async () => {
     todos.value = todoStore.datas
 }
 
+async function tambahTask(form) {}
+
 onMounted(async () => {
     const whereNot = [{ role: 'admin' }]
     await userStore.getData(whereNot)
 
     users.value = userStore.datas
 })
-
-const items = ref([])
-const headers = [
-    {
-        title: 'Nama User',
-        value: 'user',
-    },
-]
 </script>
 <template>
     <AuthenticatedLayout>
@@ -64,7 +59,7 @@ const headers = [
                 <div
                     class="bg-light-primary-1 dark:bg-dark-primary-2 !p-5 !rounded-lg !space-y-3 shadow-lg bg-hexagon"
                 >
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="flex items-center gap-3">
                         <select
                             v-model="filterUserCategory"
                             class="!text-sm border !border-typography-2 rounded-lg !p-2.5 !bg-light-primary-1 dark:!bg-dark-primary-1 !text-white !appearance-auto"
@@ -83,6 +78,49 @@ const headers = [
                             class="bg-light-primary-1 dark:!bg-dark-primary-2"
                             :options="filteredUser"
                         />
+                        <v-menu attach="false">
+                            <template v-slot:activator="{ props: menu }">
+                                <button
+                                    v-bind="menu"
+                                    class="rounded-lg border dark:!bg-dark-primary-1 dark:!border-typography-2 !h-[38px] !aspect-square"
+                                >
+                                    <i class="fa-solid fa-ellipsis-vertical dark:text-white"></i>
+                                </button>
+                            </template>
+                            <div
+                                class="!mt-3 !p-1 !min-w-40 dark:!bg-dark-primary-1 dark:!text-white !rounded-lg border dark:!border-typography-2 !text-sm"
+                            >
+                                <ul>
+                                    <li>
+                                        <TambahTodo :users="users" :method="tambahTask" />
+                                    </li>
+                                    <li>
+                                        <button
+                                            class="!text-sm hover:!bg-gray-100 dark:hover:!bg-dark-primary-2 rounded-lg !py-2 !px-3 w-full flex gap-2 items-center"
+                                        >
+                                            <i class="fa-solid fa-clock"></i>
+                                            <p>Routine Task</p>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            class="!text-sm hover:!bg-gray-100 dark:hover:!bg-dark-primary-2 rounded-lg !py-2 !px-3 w-full flex gap-2 items-center"
+                                        >
+                                            <i class="fa-solid fa-file-circle-check"></i>
+                                            <p>Lihat Laporan</p>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            class="!text-sm hover:!bg-gray-100 dark:hover:!bg-dark-primary-2 rounded-lg !py-2 !px-3 w-full flex gap-2 items-center"
+                                        >
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            <p>Konfirmasi Task</p>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </v-menu>
                     </div>
                     <div>
                         <TodoChart :todos="todos" />
@@ -111,7 +149,7 @@ const headers = [
     background-color: #11121e;
     border-color: #7b7b7b;
     border-radius: 8px;
-    height: 42.3px !important;
+    height: 38px !important;
 }
 .multiselect__single {
     font-size: 14px !important;
