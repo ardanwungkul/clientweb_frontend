@@ -67,6 +67,7 @@ const adminRoutes = [
     },
 ]
 
+
 const karyawanRoutes = [
     {
         path: '/dashboard',
