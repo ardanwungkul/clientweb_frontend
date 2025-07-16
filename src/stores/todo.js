@@ -75,7 +75,7 @@ export const useTodoStore = defineStore('todo', {
 
             uiStore.isLoading = true
             try {
-                const response = await api.post(`/todo/`, form)
+                const response = await api.post(`/todo`, form)
                 console.log(this.datas)
 
                 this.datas.push(response.data.data)

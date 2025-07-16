@@ -23,6 +23,7 @@ export const useAuthStore = defineStore('auth', {
             try {
                 const bytes = CryptoJS.AES.decrypt(state.encryptedUserData, key)
                 const decryptedStr = bytes.toString(CryptoJS.enc.Utf8)
+                if (!decryptedStr) return null
                 return JSON.parse(decryptedStr)
             } catch (e) {
                 console.error('Decryption error:', e)

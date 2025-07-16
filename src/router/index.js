@@ -74,7 +74,7 @@ const karyawanRoutes = [
         component: () => import('@/views/karyawan/Dashboard.vue'),
         meta: {
             auth: true,
-            role: 'karyawan',
+            role: ['karyawan', 'pkl'],
             title: 'Dashboard',
         },
     },
@@ -84,7 +84,7 @@ const karyawanRoutes = [
         component: () => import('@/views/karyawan/todo/Index.vue'),
         meta: {
             auth: true,
-            role: 'karyawan',
+            role: ['karyawan', 'pkl'],
             title: 'Todo List',
         },
     },
@@ -137,7 +137,7 @@ router.beforeEach((to, from, next) => {
             }
 
             const requiredRole = to.meta.role
-            if (requiredRole && data.role !== requiredRole) {
+            if (requiredRole && ![].concat(requiredRole).includes(data.role)) {
                 const responseStore = useResponseStore()
                 responseStore.addError('Anda Tidak Memiliki Akses ke Halaman ini!!')
                 if (data.role === 'admin') {
