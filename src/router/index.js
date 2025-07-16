@@ -55,7 +55,18 @@ const adminRoutes = [
             title: 'Todo List',
         },
     },
+    {
+        path: '/admin/nameserver',
+        name: 'admin.nameserver.index',
+        component: () => import('@/views/admin/nameserver/Index.vue'), // <-- Sesuaikan folder dan nama file
+        meta: {
+            auth: true,
+            role: 'admin',
+            title: 'Name Server',
+        },
+    },
 ]
+
 
 const karyawanRoutes = [
     {
