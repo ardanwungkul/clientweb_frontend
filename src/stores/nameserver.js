@@ -1,70 +1,90 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import api from '@/config/axios'
+import { useUIStore } from './ui'
+import { useResponseStore } from './response'
 
 export const useNameserverStore = defineStore('nameserver', {
-  state: () => ({
-    items: [],
-    token: localStorage.getItem('token') || '',
-    pagination: {
-      page: 1,
-      perPage: 10,
-      total: 0,
+    state: () => ({
+        datas: [],
+        data: {},
+    }),
+
+    actions: {
+        async getData() {
+            const uiStore = useUIStore()
+            uiStore.startLoading()
+            try {
+                const response = await api.get(`/name-servers`)
+
+                this.datas = response.data.data
+            } catch (error) {
+                console.error('Gagal ambil data:', error)
+            } finally {
+                uiStore.stopLoading()
+            }
+        },
+
+        async addData(form) {
+            const uiStore = useUIStore()
+            uiStore.startLoading()
+
+            const responseStore = useResponseStore()
+            try {
+                const response = await api.post(`/name-servers`, form)
+                this.datas.push(response.data.data)
+
+                responseStore.addSuccess(response.data.message)
+            } catch (error) {
+                const errors = Object.values(error.response.data.errors)
+                errors.forEach((e) => {
+                    responseStore.addError(e)
+                })
+                console.error('Gagal simpan:', error)
+            } finally {
+                uiStore.stopLoading()
+            }
+        },
+        async editData(form, id) {
+            const uiStore = useUIStore()
+            uiStore.startLoading()
+
+            const responseStore = useResponseStore()
+            try {
+                const response = await api.put(`/name-servers/${id}`, form)
+                const updatedData = response.data.data
+                this.datas = this.datas.map((item) => {
+                    return item.id === Number(id) ? { ...item, ...updatedData } : item
+                })
+
+                responseStore.addSuccess(response.data.message)
+            } catch (error) {
+                const errors = Object.values(error.response.data.errors)
+                errors.forEach((e) => {
+                    responseStore.addError(e)
+                })
+                console.error('Gagal simpan:', error)
+            } finally {
+                uiStore.stopLoading()
+            }
+        },
+
+        async deleteData(id) {
+            const responseStore = useResponseStore()
+            const uiStore = useUIStore()
+            uiStore.startLoading()
+
+            try {
+                const response = await api.delete(`/name-servers/${id}`)
+
+                responseStore.addSuccess(response.data.message)
+                this.datas = this.datas.filter((ns) => {
+                    return ns.id !== id
+                })
+            } catch (error) {
+                console.error('Gagal hapus:', error)
+            } finally {
+                uiStore.stopLoading()
+            }
+        },
     },
-    loading: false,
-  }),
-
-  actions: {
-    async getAll(page = 1, perPage = 10) {
-      this.loading = true
-      try {
-        const res = await axios.get(`http://localhost:8000/api/name-servers?page=${page}&per_page=${perPage}`, {
-          headers: {
-            Authorization: `Bearer ${this.token}`
-          }
-        })
-
-        this.items = res.data.data               // <-- ambil data
-        this.pagination.total = res.data.total   // <-- total untuk pagination
-        this.pagination.page = res.data.current_page
-      } catch (error) {
-        console.error('Gagal ambil data:', error)
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async save(data) {
-      try {
-        if (data.id) {
-          await axios.put(`http://localhost:8000/api/name-servers/${data.id}`, data, {
-            headers: { Authorization: `Bearer ${this.token}` }
-          })
-        } else {
-          await axios.post('http://localhost:8000/api/name-servers', data, {
-            headers: { Authorization: `Bearer ${this.token}` }
-          })
-        }
-
-        await this.getAll(this.pagination.page, this.pagination.perPage)
-      } catch (error) {
-        console.error('Gagal simpan:', error)
-      }
-    },
-
-    async remove(id) {
-      try {
-        await axios.delete(`http://localhost:8000/api/name-servers/${id}`, {
-          headers: { Authorization: `Bearer ${this.token}` }
-        })
-
-        const totalAfterDelete = this.pagination.total - 1
-        const lastPage = Math.max(Math.ceil(totalAfterDelete / this.pagination.perPage), 1)
-        const currentPage = Math.min(this.pagination.page, lastPage)
-
-        await this.getAll(currentPage, this.pagination.perPage)
-      } catch (error) {
-        console.error('Gagal hapus:', error)
-      }
-    }
-  }
 })
