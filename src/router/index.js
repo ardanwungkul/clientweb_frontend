@@ -68,7 +68,7 @@ const adminRoutes = [
     {
         path: '/admin/name-server',
         name: 'admin.nameserver.index',
-        component: () => import('@/views/admin/nameserver/Index.vue'),
+        component: () => import('@/views/admin/nameserver/index.vue'),
         meta: {
             auth: true,
             role: 'admin',
