@@ -49,6 +49,7 @@ export const useUserStore = defineStore('user', {
                 uiStore.isLoading = false
             }
         },
+        
         async deleteData(id) {
             const uiStore = useUIStore()
             const responseStore = useResponseStore()
@@ -70,6 +71,29 @@ export const useUserStore = defineStore('user', {
                 uiStore.isLoading = false
             }
         },
+                async updateData(form, id) {
+            const uiStore = useUIStore()
+            const responseStore = useResponseStore()
+            uiStore.isLoading = true
+
+            try {
+                const response = await api.put(`/user/${id}`, form)
+                responseStore.addSuccess(response.data.message)
+                const index = this.datas.findIndex(user => user.id === id)
+                if (index !== -1) {
+                    this.datas[index] = response.data.data
+                }
+            } catch (error) {
+                const errors = Object.values(error.response.data.errors)
+                errors.forEach((e) => {
+                    responseStore.addError(e)
+                })
+                throw error
+            } finally {
+                uiStore.isLoading = false
+            }
+        },
+
     },
 })
 
