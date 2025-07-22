@@ -20,31 +20,44 @@ const sidebarItemsAdmin = ref([
         to: 'admin.dashboard',
         title: 'Dashboard',
         icon: 'fa-solid fa-grid',
+        isHasChild: false,
     },
     {
-        to: 'admin.domain',
-        title: 'Domain',
-        icon: 'fa-solid fa-globe',
-    },
-    {
-        to: 'admin.user.index',
-        title: 'User',
-        icon: 'fa-solid fa-user',
-    },
-    {
-        to: 'admin.pelanggan.index',
-        title: 'Pelanggan',
-        icon: 'fa-solid fa-users',
+        title: 'Database',
+        icon: 'fa-solid fa-database',
+        isHasChild: true,
+        child: [
+            {
+                to: 'admin.domain',
+                title: 'Domain',
+                icon: 'fa-solid fa-globe',
+                isHasChild: false,
+            },
+            {
+                to: 'admin.user.index',
+                title: 'User',
+                icon: 'fa-solid fa-user',
+                isHasChild: false,
+            },
+            {
+                to: 'admin.pelanggan.index',
+                title: 'Pelanggan',
+                icon: 'fa-solid fa-users',
+                isHasChild: false,
+            },
+            {
+                to: 'admin.nameserver.index',
+                title: 'Name Server',
+                icon: 'fa-solid fa-server',
+                isHasChild: false,
+            },
+        ],
     },
     {
         to: 'admin.todo.index',
         title: 'Todo List',
         icon: 'fa-solid fa-check',
-    },
-    {
-        to: 'admin.nameserver.index',
-        title: 'Name Server',
-        icon: 'fa-solid fa-server',
+        isHasChild: false,
     },
 ])
 
@@ -53,11 +66,13 @@ const sidebarItemKaryawan = ref([
         to: 'karyawan.dashboard',
         title: 'Dashboard',
         icon: 'fa-solid fa-grid',
+        isHasChild: false,
     },
     {
         to: 'karyawan.todo',
         title: 'Todo List',
         icon: 'fa-solid fa-check',
+        isHasChild: false,
     },
 ])
 
@@ -125,8 +140,9 @@ async function logout() {
                         class="w-full"
                     >
                         <router-link
+                            v-if="!item.isHasChild"
                             :to="{ name: item.to }"
-                            class="!w-full flex gap-2 items-center px-3 transition-all duration-300 dark:hover:!bg-dark-primary-1 dark:hover:!text-white dark:!text-gray-300 dark:!bg-dark-primary-2"
+                            class="!w-full flex gap-2 items-center !py-1 !px-3 transition-all duration-300 dark:hover:!bg-dark-primary-1 dark:hover:!text-white dark:!text-gray-300 dark:!bg-dark-primary-2"
                         >
                             <div
                                 class="!text-xl flex items-center justify-center flex-none w-10 h-10"
@@ -137,6 +153,52 @@ async function logout() {
                                 {{ item.title }}
                             </p>
                         </router-link>
+                        <div v-else>
+                            <v-expansion-panels>
+                                <v-expansion-panel class="!bg-transparent" elevation="0">
+                                    <v-expansion-panel-title
+                                        min-height="0"
+                                        class="!w-full !py-1 !px-3 transition-all duration-300 dark:hover:!bg-dark-primary-1 dark:hover:!text-white dark:!text-gray-300"
+                                    >
+                                        <div>
+                                            <div class="flex gap-2 items-center">
+                                                <div
+                                                    class="!text-xl flex items-center justify-center flex-none w-10 h-10"
+                                                >
+                                                    <i :class="item.icon"></i>
+                                                </div>
+                                                <p class="w-full text-sm">
+                                                    {{ item.title }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </v-expansion-panel-title>
+                                    <v-expansion-panel-text>
+                                        <div class="px-3 py-2">
+                                            <div
+                                                class="dark:bg-dark-primary-1/50 border !border-typography-2 rounded-lg !p-3 !space-y-1"
+                                            >
+                                                <router-link
+                                                    v-for="(child, i) in item.child"
+                                                    :key="i"
+                                                    :to="{ name: child.to }"
+                                                    class="!w-full flex gap-2 items-center !py-1 !px-3 transition-all duration-300 dark:hover:!bg-dark-primary-1 dark:hover:!text-white dark:!text-gray-300 dark:!bg-dark-primary-2 rounded-lg"
+                                                >
+                                                    <div
+                                                        class="!text-xl flex items-center justify-center flex-none w-10 h-10"
+                                                    >
+                                                        <i :class="child.icon"></i>
+                                                    </div>
+                                                    <p class="w-full text-sm">
+                                                        {{ child.title }}
+                                                    </p>
+                                                </router-link>
+                                            </div>
+                                        </div>
+                                    </v-expansion-panel-text>
+                                </v-expansion-panel>
+                            </v-expansion-panels>
+                        </div>
                     </div>
                 </div>
             </v-navigation-drawer>
@@ -199,5 +261,11 @@ async function logout() {
 <style>
 .v-navigation-drawer__content::-webkit-scrollbar {
     display: none;
+}
+.v-expansion-panel-title:hover > .v-expansion-panel-title__overlay {
+    --v-hover-opacity: 0;
+}
+.v-expansion-panel-text__wrapper {
+    padding: 0;
 }
 </style>
