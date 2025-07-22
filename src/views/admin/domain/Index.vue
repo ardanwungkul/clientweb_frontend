@@ -4,7 +4,7 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue'
 <template>
     <AuthenticatedLayout>
         <div>
-            <p class="!p-2">Test</p>
+            <p class="!p-2"></p>
         </div>
     </AuthenticatedLayout>
 </template>
